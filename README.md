@@ -1,5 +1,7 @@
 # Arithmetic Expressions #
 
+## Syntax ##
+
 ```
 op ::= `+` | `-` | `==`
 exp ::= INTEGER | VARIABLE |
@@ -7,6 +9,8 @@ exp ::= INTEGER | VARIABLE |
         `(` op exp exp `)` |
         `(` `=` VARIABLE exp `)`
 ```
+
+### Basic Idea with Tokenization ###
 
 ```
 while (there is stuff to read) {
@@ -17,3 +21,15 @@ while (there is stuff to read) {
   }
 }
 ```
+
+## Compiling the Code ##
+
+```console
+mvn compile
+mvn test
+```
+
+### Viewing Code Coverage Report ###
+
+After you run `mvn test`, you can see the code coverage report in `target/site/jacoco/index.html`.
+It can be opened in any web browser.
