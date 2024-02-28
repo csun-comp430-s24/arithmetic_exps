@@ -1,3 +1,5 @@
+package arithmetic_exps.tokenizer;
+
 // Scala
 // sealed trait Token
 // case object PlusToken extends Token

@@ -1,3 +1,5 @@
+package arithmetic_exps.tokenizer;
+
 public class DoubleEqualsToken implements Token {
     public boolean equals(final Object other) {
         return other instanceof DoubleEqualsToken;
@@ -6,6 +8,6 @@ public class DoubleEqualsToken implements Token {
         return "DoubleEqualsToken";
     }
     public int hashCode() {
-        return 2;
+        return 0;
     }
 }

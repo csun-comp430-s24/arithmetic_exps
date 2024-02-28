@@ -1,3 +1,5 @@
+package arithmetic_exps.tokenizer;
+
 public class IntegerLiteralToken implements Token {
     public final int value;
     public IntegerLiteralToken(final int value) {

@@ -1,5 +1,6 @@
+package arithmetic_exps.tokenizer;
+
 public class PlusToken implements Token {
-    // public PlusToken() {}
     public boolean equals(final Object other) {
         return other instanceof PlusToken;
     }
@@ -7,6 +8,6 @@ public class PlusToken implements Token {
         return "PlusToken";
     }
     public int hashCode() {
-        return 0;
+        return 2;
     }
 }

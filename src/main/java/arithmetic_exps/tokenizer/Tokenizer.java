@@ -1,11 +1,16 @@
+package arithmetic_exps.tokenizer;
+
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 // TODO: regex version
 public class Tokenizer {
     // BEGIN STATIC VARIABLES
     public static final Map<String, Token> RESERVED_WORDS =
         new HashMap<String, Token>() {{
-            put("return", new ReturnToken());
+            // put("return", new ReturnToken());
             put("let", new LetToken());
         }};
     // val SYMBOLS = Seq(("==", DoubleEqualsToken),
@@ -122,18 +127,24 @@ public class Tokenizer {
                 (token = tryTokenizeSymbol()) == null &&
                 (token = tryTokenizeInteger()) == null) {
                 throw new TokenizerException("Unrecognized character: " + input.charAt(pos));
+            } else {
+                return token;
             }
         } else {
             return null;
         }
     }
     
-    public static List<Token> tokenize(String input) throws TokenizerException {
+    private List<Token> tokenize() throws TokenizerException {
         final List<Token> tokens = new ArrayList<Token>();
         Token token = null;
         while ((token = readToken()) != null) {
             tokens.add(token);
         }
         return tokens;
+    }
+
+    public static List<Token> tokenize(final String input) throws TokenizerException {
+        return new Tokenizer(input).tokenize();
     }
 }

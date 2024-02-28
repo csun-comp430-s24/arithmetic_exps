@@ -1,3 +1,5 @@
+package arithmetic_exps.tokenizer;
+
 public class IdentifierToken implements Token {
     public final String name;
     public IdentifierToken(final String name) {
