@@ -27,9 +27,10 @@ while (there is stuff to read) {
 ```console
 mvn compile
 mvn test
+mvn jacoco:report
 ```
 
 ### Viewing Code Coverage Report ###
 
-After you run `mvn test`, you can see the code coverage report in `target/site/jacoco/index.html`.
+After you run everything above, you can see the code coverage report in `target/site/jacoco/index.html`.
 It can be opened in any web browser.
