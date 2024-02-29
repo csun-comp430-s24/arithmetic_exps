@@ -98,7 +98,8 @@ public class Tokenizer {
     // returns null if this isn't an integer
     private Token tryTokenizeInteger() {
         final StringBuffer read = new StringBuffer();
-        while (Character.isDigit(input.charAt(pos))) {
+        while (pos < input.length() &&
+               Character.isDigit(input.charAt(pos))) {
             read.append(input.charAt(pos));
             pos++;
         }
