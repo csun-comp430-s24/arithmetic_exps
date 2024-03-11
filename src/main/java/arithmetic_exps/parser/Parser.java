@@ -8,12 +8,17 @@ public class Parser {
         this.tokens = tokens;
     }
 
-    // couldn't parse?  Return null.
-    public ParseResult<Op> parseOp(final int startPos) {
-        if (startPos < 0 || startPos >= tokens.size()) {
-            return null;
+    public Token getToken(final int position) throws ParseException {
+        if (position < 0 || position >= tokens.size()) {
+            throw new ParseException("No token at position: " + position);
+        } else {
+            return tokens.get(position);
         }
-        final Token token = tokens.get(startPos);
+    }
+    
+    // couldn't parse?  Return null.
+    public ParseResult<Op> parseOp(final int startPos) throws ParseException {
+        final Token token = getToken(startPos);
         if (token instanceof PlusToken) {
             return new ParseResult<Op>(new PlusOp(), startPos + 1);
         } else if (token instanceof MinusToken) {
@@ -21,48 +26,72 @@ public class Parser {
         } else if (token instanceof EqualsToken) {
             return new ParseResult<Op>(new EqualsOp(), startPos + 1);
         } else {
-            return null;
+            throw new ParseException("Not an Op: " + token.toString());
         }
     }
 
-    public ParseResult<Exp> parseExp(final int startPos) {
-        // NEXT TIME: refactor and finish parser
-        if (startPos < 0 || startPos >= tokens.size()) {
-            return null;
+    public ParseResult<Variable> parseVariable(final int startPos) throws ParseException {
+        final Token token = getToken(startPos);
+        if (token instanceof VariableToken) {
+            return new ParseResult<Exp>(new VariableExp(((VariableToken)token).variable),
+                                        startPos + 1);
+        } else {
+            throw new ParseException("Not a variable: " + token.toString());
         }
-        final Token token = tokens.get(startPos);
+    }
+
+    public void assertTokenHereIs(final int pos, final Token expectedToken) throws ParseException {
+        final Token tokenHere = getToken(pos);
+        if (!tokenHere.equals(expectedToken)) {
+            throw new ParseException("Expected: " + expectedToken.toString() +
+                                     "; received: " + tokenHere.toString());
+        }
+    }
+    
+    public ParseResult<Exp> parseExp(final int startPos) throws ParseException {
+        // NEXT TIME: complete parser (read all tokens), parser for non-s-expressions
+        final Token token = getToken(startPos);
         if (token instanceof IntegerLiteralToken) {
             final IntegerLiteralToken asInt = (IntegerLiteralToken)token;
             final int value = asInt.value;
             return new ParseResult<Exp>(new IntegerLiteralExp(value),
                                         startPos + 1);
-        } else if (token instanceof VariableToken) {
-            final VariableToken asVariable = (VariableToken)token;
-            final Variable variable = asVariable.variable;
-            return new ParseResult<Exp>(new VariableExp(variable),
-                                        startPos + 1);
         } else if (token instanceof LeftParenToken) {
-            // `(` op exp exp `)`
-            // `(` `+` `1` `2` `)`
-            //
-            // `(` thing* `)`
-            // thing ::= exp | op
+            final Token nextToken = getToken(startPos + 1);
+            if (nextToken instanceof LetToken) {
+                // `(` `let` VARIABLE exp exp `)`
+                final ParseResult<Variable> variable = parseVariable(startPos + 2);
+                final ParseResult<Exp> initializer = parseExp(variable.nextPos);
+                final ParseResult<Exp> body = parseExp(initializer.nextPos);
+                assertTokenHereIs(body.nextPos, new RightParenToken());
+                return new ParseResult<Exp>(new LetExp(variable.parsed,
+                                                       initializer.parsed,
+                                                       body.parsed),
+                                            body.nextPos + 1);
+            } else if (nextToken instanceof SingleEqualsToken) {
+                // `(` `=` VARIABLE exp `)`
+                final ParseResult<Variable> variable = parseVariable(startPos + 2);
+                final ParseResult<Exp> exp = parseExp(variable.nextPos);
+                assertTokenHereIs(exp.nextPos, new RightParenToken());
+                return new ParseResult<Exp>(new AssignmentExp(variable.parsed,
+                                                              exp.parsed),
+                                            exp.nextPos + 1);
+            } else {
+                // `(` op exp exp `)`
+                final ParseResult<Op> op = parseOp(startPos + 1);
+                final ParseResult<Exp> leftExp = parseExp(op.nextPos);
+                final ParseResult<Exp> rightExp = parseExp(leftExp.nextPos);
+                assertTokenHereIs(rightExp.nextPos, new RightParenToken());
 
-            ParseResult<Op> op = null;
-            ParseResult<Exp> leftExp = null;
-            ParseResult<Exp> rightExp = null;
-            if ((op = parseOp(startPos + 1)) != null &&
-                (leftExp = parseExp(op.nextPos)) != null &&
-                (rightExp = parseExp(leftExp.nextPos)) != null &&
-                rightExp.nextPos < tokens.size() &&
-                tokens.get(rightExp.nextPos) instanceof RightParenToken) {
                 return new ParseResult<Exp>(new OpExp(op.parsed,
                                                       leftExp.parsed,
                                                       rightExp.parsed),
                                             rightExp.nextPos + 1);
-            } else if (...
+            }
         } else {
-            return null;
+            final ParseResult<Variable> variable = parseVariable(startPos);
+            return new ParseResult<Exp>(new VariableExp(variable.parsed),
+                                        variable.nextPos);
         }
     }
 }
